@@ -6,13 +6,80 @@ const path = require("path");
 const fs = require("fs");
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
-const outputPath = path.join(OUTPUT_DIR, "team.html");
+const outputPath = path.join(OUTPUT_DIR, "main.html");
 
 const render = require("./lib/htmlRenderer");
 
+let id = 0;
+
+let employeeArray = [];
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
+
+function basicEmployee() {
+    inquirer
+        .prompt([
+            {
+                name: "fullName",
+                type: "input",
+                message: "What is the employee's name?"
+            },
+            {
+                name: "email",
+                type: "input",
+                message: "What is their email?"
+            },
+            {
+                name: "role",
+                type: "list",
+                message: "What is their role?",
+                choices: ["Manager", "Engineer", "Intern"]
+            }
+        ]).then(function(response){
+            id++;
+            if (response.role === "Manager") {
+                inquirer
+                .prompt({
+                    name: "number",
+                    type: "input",
+                    message: "What is the manager's office number"
+                }).then(function(answer) {
+                    const newEmployee = new Manager(response.fullName, response.role, response.email, id, answer.number);
+                    employeeArray.push(newEmployee);
+                    writeFile(render(newEmployee));
+                });
+            } else if (response.role === "Engineer") {
+                inquirer
+                .prompt({
+                    name: "github",
+                    type: "input",
+                    message: "What is this engineer's github"
+                }).then(function(answer) {
+                    const newEmployee = new Engineer(response.fullName, response.role, response.email, id, answer.github);
+                    employeeArray.push(newEmployee);
+                    writeFile(render(newEmployee));
+                });
+            } else {
+                inquirer
+                    .prompt({
+                        name: "school",
+                        type: "input",
+                        message: "What shcool is this intern at?"
+                    }).then(function(answer) {
+                        const newEmployee = new Intern(response.fullName, response.role, response.email, id, answer.school);
+                        employeeArray.push(newEmployee);
+                        writeFile(render(newEmployee));
+                    });
+            }
+        })
+}
+
+basicEmployee();
+
+function writeFile(html){
+    
+}
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
