@@ -6,7 +6,7 @@ const path = require("path");
 const fs = require("fs");
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
-const outputPath = path.join(OUTPUT_DIR, "main.html");
+const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
@@ -47,7 +47,8 @@ function basicEmployee() {
                 }).then(function(answer) {
                     const newEmployee = new Manager(response.fullName, response.role, response.email, id, answer.number);
                     employeeArray.push(newEmployee);
-                    writeFile(render(newEmployee));
+                   // writeFile(render(newEmployee));
+                   again()
                 });
             } else if (response.role === "Engineer") {
                 inquirer
@@ -58,7 +59,8 @@ function basicEmployee() {
                 }).then(function(answer) {
                     const newEmployee = new Engineer(response.fullName, response.role, response.email, id, answer.github);
                     employeeArray.push(newEmployee);
-                    writeFile(render(newEmployee));
+                    again()
+                   // writeFile(render(newEmployee));
                 });
             } else {
                 inquirer
@@ -69,16 +71,37 @@ function basicEmployee() {
                     }).then(function(answer) {
                         const newEmployee = new Intern(response.fullName, response.role, response.email, id, answer.school);
                         employeeArray.push(newEmployee);
-                        writeFile(render(newEmployee));
+                        again()
+                       // writeFile(render(newEmployee));
                     });
             }
         })
 }
 
+function again() {
+    inquirer
+        .prompt(
+    {
+        name: "done",
+        type: "list",
+        message: "Are you into interested in adding more employees?",
+        choices: ["Yes", "No"]
+        }
+    ).then(function(response){
+        if (response.done === "Yes") {
+            basicEmployee();
+        } else {
+            writeFile(render(employeeArray));
+        }
+    });
+}
+
 basicEmployee();
 
 function writeFile(html){
-    
+   fs.appendFile(outputPath, html, (err) =>
+   err ? console.error(err) : console.log("done")
+ );
 }
 
 // After the user has input all employees desired, call the `render` function (required
